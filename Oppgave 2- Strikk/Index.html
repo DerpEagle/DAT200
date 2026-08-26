@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <title>Strikk</title>
+</head>
+<body>
+    <canvas id="myCanvas" width="600" height="600"></canvas>
+
+    <script>
+        // Henter canvas
+        const canvas = document.getElementById("myCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Firkant plassering og størrelse
+        const squareSize = 300;
+        const squareX = (canvas.width - squareSize) / 2;
+        const squareY = (canvas.height - squareSize) / 2;
+
+        // Midtpunkt
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const circleRadius = 7;
+
+        // Hitboks
+        const grabRadius = 10;
+        let circleX = centerX;
+        let circleY = centerY;
+        let dragging = false;
+
+        // Tegner alle elementene
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Bakgrunn
+            ctx.fillStyle = "rgb(23, 119, 94)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Firkant
+            ctx.fillStyle = "rgb(144, 49, 32)";
+            ctx.fillRect(squareX, squareY, squareSize, squareSize);
+
+            // Strokefarge og bredde
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 1;
+
+            // Strikk
+            ctx.beginPath();
+            ctx.moveTo(squareX, centerY);
+            ctx.lineTo(circleX, circleY);
+            ctx.lineTo(squareX + squareSize, centerY);
+            ctx.stroke();
+
+            // Sirkel
+            ctx.beginPath();
+            ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        // Mouse events
+        canvas.addEventListener("mousedown", function (event) {
+            // Museposisjon på canvas
+            let mouseX = event.clientX - canvas.offsetLeft;
+            let mouseY = event.clientY - canvas.offsetTop;
+
+            // Avstand til sirkel
+            let distanceX = mouseX - circleX;
+            let distanceY = mouseY - circleY;
+            let distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+            // Start dragging
+            if (distance <= grabRadius) {
+                dragging = true;
+                canvas.style.cursor = "pointer";
+            }
+        }, false);
+
+        // Beveg musepekeren
+        canvas.addEventListener("mousemove", function (event) {
+            let mouseX = event.clientX - canvas.offsetLeft;
+            let mouseY = event.clientY - canvas.offsetTop;
+            let distanceX = mouseX - circleX;
+            let distanceY = mouseY - circleY;
+            let distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+            // Flytt sirkel
+            if (dragging) {
+                circleX = mouseX;
+                circleY = mouseY;
+                canvas.style.cursor = "pointer";
+                draw();
+
+            // Håndcursor
+            } else if (distance <= grabRadius) {
+                canvas.style.cursor = "pointer";
+            } else {
+                canvas.style.cursor = "auto";
+            }
+        }, false);
+
+        // Slipp museknappen
+        // mouseup ligger på window for å sikre at den fanger opp eventet selv om musen er utenfor canvas
+        window.addEventListener("mouseup", function () {
+            dragging = false;
+            circleX = centerX;
+            circleY = centerY;
+            canvas.style.cursor = "auto";
+            draw();
+        }, false);
+
+        draw();
+    </script>
+</body>
+</html>
